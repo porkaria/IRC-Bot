@@ -28,15 +28,16 @@
     // Configure the bot.
     $bot->setServer( 'irc.gendoc.com.br' );
     $bot->setPort( 6667 );
-    $bot->setChannel( array('#gendoc') );
+    $bot->setChannel( array('#ionews') );
     $bot->setName( 'Gilbot' );
     $bot->setNick( 'Gilbot' );
     $bot->setMaxReconnects( 1 );
-    $bot->setLogFile( '/home/porkaria/codigo/log/gilbot/teste-' );
+    $bot->setLogFile( '/home/renan/Projetos/irc_bot/Tests/log-' );
+    $bot->setReadFile( '/home/renan/Projetos/error_ionew.log' );
 
     // Add commands to the bot.
     $bot->addCommand( new Command\Say );
-    $bot->addCommand( new Command\Poke );
+    $bot->addCommand( new Command\Poke ); 
     $bot->addCommand( new Command\Join );
     $bot->addCommand( new Command\Part );
     $bot->addCommand( new Command\Timeout );
@@ -47,4 +48,11 @@
     $bot->connectToServer();
 
     // Nothing more possible, the bot runs until script ends.
+
+
+
+
+
+
+
 ?>

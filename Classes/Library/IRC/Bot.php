@@ -168,10 +168,13 @@
          * @author Daniel Siepmann <coding.layne@me.com>
          */
         private function main() {
+            $connected = 0;
             do {
                 $command = '';
                 $arguments = array ( );
                 $data = $this->connection->getData();
+
+                if (stripos( $data, ':End of /NAMES list' ) == true) $connected = 1;
 
                 // Check for some special situations and react:
                 // The nickname is in use, create a now one using a counter and try again.
@@ -217,8 +220,11 @@
 
                 // Nothing new from the server, step over.
                 if ($args[0] == 'PING' || !isset( $args[3] )) {
+                    $this->server_status();
                     continue;
                 }
+		
+		if($connected == 1) $this->server_status();
 
                 // Explode the server response and get the command.
                 // $source finds the channel or user that the command originated.
@@ -311,6 +317,25 @@
             fwrite( $this->logFileHandler, date( 'd.m.Y - H:i:s' ) . "\t  [ " . $status . " ] \t" . \Library\FunctionCollection::removeLineBreaks( $log ) . "\r\n" );
         }
 
+	private function server_status(){
+            $old_status = stat($this->readFile);
+            clearstatcache();
+            $new_status = stat($this->readFile);
+            if($new_status[9] != $old_status[9]){
+                $variation = $new_status[7] - $old_status[7];
+                $command = "tail -c ".$variation." ".$this->readFile;
+                $shell=shell_exec($command);
+		$rows = explode("\n",$shell);
+		foreach($rows AS $row){
+                    $error = strpos($row,"PHP Error");
+                    if(!empty($error)) $arguments[]="Erro encontrado em: ".$row;
+		}
+                foreach($this->channel AS $channel){
+                    array_unshift($arguments, $channel);
+                    $this->executeCommand($this->nick, 'Say', $arguments);
+                }
+            }            
+	}
         // Setters
 
         /**
@@ -327,6 +352,7 @@
             $this->setNick( $configuration['nick'] );
             $this->setMaxReconnects( $configuration['maxReconnects'] );
             $this->setLogFile( $configuration['logFile'] );
+            $this->setReadFile( $configuration['readFile'] );
         }
 
         /**
@@ -400,6 +426,10 @@
                 $this->logFile .= date( 'd-m-Y' ) . '.log';
                 $this->logFileHandler = fopen( $this->logFile, 'w+' );
             }
+        }
+
+        public function setReadFile( $readFile ) {
+            $this->readFile = (string) $readFile;
         }
 
     }
