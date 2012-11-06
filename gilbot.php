@@ -33,7 +33,8 @@
     $bot->setNick( 'Gilbot' );
     $bot->setMaxReconnects( 1 );
     $bot->setLogFile( '/home/renan/Projetos/irc_bot/Tests/log-' );
-    $bot->setReadFile( '/home/renan/Projetos/error_ionew.log' );
+    $bot->setReadFile( '/home/renan/Projetos/logs/error_ionews.log' );
+    $bot->setLogLevel( array('[emerg]','[alert]','[crit]','[error]','[warn]','[notice]','[info]','[debug]') );
 
     // Add commands to the bot.
     $bot->addCommand( new Command\Say );

@@ -69,6 +69,9 @@
          */
         private $logFile = '';
 
+        private $readFile = '';
+
+        private $logLevel = array ( );
         /**
          * The nick of the bot.
          * @var string
@@ -321,18 +324,26 @@
             $old_status = stat($this->readFile);
             clearstatcache();
             $new_status = stat($this->readFile);
+            $arguments = array();
             if($new_status[9] != $old_status[9]){
                 $variation = $new_status[7] - $old_status[7];
                 $command = "tail -c ".$variation." ".$this->readFile;
                 $shell=shell_exec($command);
-		$rows = explode("\n",$shell);
-		foreach($rows AS $row){
-                    $error = strpos($row,"PHP Error");
-                    if(!empty($error)) $arguments[]="Erro encontrado em: ".$row;
-		}
-                foreach($this->channel AS $channel){
-                    array_unshift($arguments, $channel);
-                    $this->executeCommand($this->nick, 'Say', $arguments);
+        		$rows = explode("\n",$shell);
+        		foreach($rows AS $row){
+                    foreach($this->logLevel AS $level){
+                        $changes = strpos($row,$level);
+                        if(!empty($changes)){
+                            $arguments[]="Nova Linha: ".$row."\n";
+                            break;
+                        }
+                    }
+        		}
+                if(!empty($arguments)){
+                    foreach($this->channel AS $channel){
+                        array_unshift($arguments, $channel);
+                        $this->executeCommand($this->nick, 'Say', $arguments);
+                    }
                 }
             }            
 	}
@@ -354,6 +365,7 @@
             $this->setMaxReconnects( $configuration['maxReconnects'] );
             $this->setLogFile( $configuration['logFile'] );
             $this->setReadFile( $configuration['readFile'] );
+            $this->setLogLevel( $configuration['logLevel'] );
         }
 
         /**
@@ -431,6 +443,10 @@
 
         public function setReadFile( $readFile ) {
             $this->readFile = (string) $readFile;
+        }
+
+        public function setLogLevel($logLevel){
+            $this->logLevel = (array) $logLevel;
         }
 
     }
